@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>游戏配置管理 · 爆米花：奥德赛</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="admin.css"></head>
+<body class="admin-page"><main class="admin-shell">
+<div class="admin-title"><div><small class="eyebrow">ODYSSEY / GAME CONFIGURATION</small><h1>游戏配置管理</h1><p>全图鉴资料库</p></div><span class="admin-badge">完整资料 · 只读查看</span></div>
+<div class="admin-intro">浏览全部原料和所有异变阶段的客人档案，不受游戏收录进度限制。</div>
+<nav class="codex-tabs" aria-label="图鉴分类"><button id="admin-ingredients" class="selected" aria-pressed="true">原料图鉴 · 5</button><button id="admin-guests" aria-pressed="false">客人图鉴 · 25</button></nav>
+<div class="admin-filters"><label>搜索档案<input id="admin-search" type="search" placeholder="名称、特征或用途…"></label><label id="stage-filter" hidden>异变阶段<select id="admin-stage"><option value="all">全部阶段</option><option value="0">0 · 普通街坊</option><option value="1">1 · 细微违和</option><option value="2">2 · 异相显露</option><option value="3">3 · 形态分岔</option><option value="4">4 · 非人来客</option></select></label><span id="admin-count" role="status"></span></div>
+<div id="admin-catalog" class="encyclopedia-grid"></div>
+<footer>ODYSSEY FIELD ARCHIVE / 本页不会修改游戏存档或解锁进度</footer>
+</main><script src="catalog-data.js"></script><script src="characters.js"></script><script src="admin.js"></script></body></html>
