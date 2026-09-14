@@ -42,7 +42,7 @@ function shoot(id){
  beep(90);
  render();
 }
-function customerAction(id){if(armed)shoot(id);else{const c=customers.find(x=>x.id===id);if(c?.attack==='windup'){toast('对方正在攻击！先拿起操作台上方的猎枪');return;}serve(id);}}
+function customerAction(id){if(armed)shoot(id);else{const c=customers.find(x=>x.id===id);if(c?.attack==='windup'){toast('对方正在攻击！先拿起操作台上方的猎枪');return;}toast('将装好的纸盒拖给这位客人');}}
 function renderCombat(){
  const c=threat();$('customers').classList.toggle('combat-paused',paused);$('shotgun').disabled=!shiftRunning()||stun>0||reload>0;$('shotgun').classList.toggle('armed',armed);
  $('fire-shotgun').disabled=!shiftRunning()||stun>0||reload>0||!armed;

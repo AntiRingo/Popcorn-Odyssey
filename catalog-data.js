@@ -94,7 +94,7 @@ const guestStages=[
 ];
 const guestEntryCount=guestStages.reduce((sum,stage)=>sum+stage.names.length,0);
 const ingredientEntries={
- corn:{tag:'基础原料 / A-01',description:'紧密排列的金色玉米粒。爆开前，它们看起来都很安静。',usage:'点击三次脱粒。每批使用 1 份玉米，再加入机器。'},
+ corn:{tag:'基础原料 / A-01',description:'紧密排列的金色玉米粒。爆开前，它们看起来都很安静。',usage:'抓住玉米来回摇晃脱粒。每批使用 1 份玉米，再加入机器。'},
  butter:{tag:'基础原料 / A-02',description:'切成小块的淡黄奶油。加热后，熟悉的香气会盖住街道的潮湿。',usage:'每台机器每批消耗 1 份，和玉米一起爆制 6 秒。'},
  caramel:{tag:'甜味佐料 / B-01',description:'琥珀色糖浆，带一点焦苦。记得核对订单。',usage:'装盒后撒入 1 份，制成焦糖爆米花；正确订单售价 24 ◈。'},
  cheese:{tag:'咸味佐料 / B-02',description:'细腻的金黄色粉末。包装上写着：请保持干燥。',usage:'装盒后撒入 1 份，制成芝士爆米花；正确订单售价 24 ◈。'},
