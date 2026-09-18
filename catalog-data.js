@@ -102,3 +102,33 @@ const ingredientEntries={
 };
 
 const goods={corn:{name:'玉米',icon:'🌽',qty:5,cost:12},butter:{name:'奶油',icon:'▰',qty:5,cost:10},caramel:{name:'焦糖',icon:'▰',qty:4,cost:8},cheese:{name:'芝士',icon:'◭',qty:4,cost:8},chili:{name:'辣椒',icon:'♨',qty:4,cost:8}};
+
+const upgradeCatalog={
+ shell:{name:'自动脱粒臂',icon:'⚙',cost:65,description:'每秒脱粒一次并自动收集到原料盒，备好一批后停止。消耗库存玉米。'},
+ feed:{name:'自动加料管',icon:'⇣',cost:85,description:'把脱好的玉米依次送入空闲机器，并自动加入库存奶油。'},
+ cook:{name:'自动点火器',icon:'♨',cost:100,description:'机器原料齐全后自动爆制，6 秒出锅。'},
+ procure:{name:'自动采购员',icon:'↻',cost:90,description:'库存不足 3 份时自动下单；优先玉米与奶油，余额不足时等待，配送不重复。'},
+ prepTables:{name:'增设脱粒工作台',icon:'⚒',cost:80,description:'增加一个独立备料台，最多 4 台；自动脱粒升级覆盖全部工作台。'},
+ packTables:{name:'增设包装台',icon:'▤',cost:80,description:'增加一个独立纸盒位，最多 4 台；可同时保存不同口味的成品。'},
+ autoPack:{name:'自动装盒臂',icon:'⇧',cost:110,description:'将任意已出锅机器的爆米花装入空包装台；调味与交付仍由你操作。'},
+ machines:{name:'增设爆米花机',icon:'▣',cost:120,description:'增加一台独立生产的机器，可同时爆制。最多 4 台。'}
+};
+
+// Price settings are shared by all saves on this browser origin.
+const PRICE_CONFIG_KEY='popcorn-odyssey-prices-v1';
+const PRICE_MAX=1000000;
+const priceCatalogs={upgrades:upgradeCatalog,materials:goods};
+const defaultPrices=Object.fromEntries(Object.entries(priceCatalogs).map(([group,items])=>[group,Object.fromEntries(Object.entries(items).map(([key,item])=>[key,item.cost]))]));
+function validBasePrice(value){return Number.isInteger(value)&&value>=0&&value<=PRICE_MAX;}
+function normalizePrices(raw){
+ return Object.fromEntries(Object.entries(defaultPrices).map(([group,items])=>[group,Object.fromEntries(Object.entries(items).map(([key,value])=>[key,validBasePrice(raw?.[group]?.[key])?raw[group][key]:value]))]));
+}
+function applyPrices(prices){for(const [group,items] of Object.entries(priceCatalogs))for(const [key,item] of Object.entries(items))item.cost=prices[group][key];}
+let priceConfigLoadFailed=false;
+try{applyPrices(normalizePrices(JSON.parse(localStorage.getItem(PRICE_CONFIG_KEY))));}catch{priceConfigLoadFailed=true;}
+function savePrices(prices){
+ const normalized=normalizePrices(prices);
+ localStorage.setItem(PRICE_CONFIG_KEY,JSON.stringify(normalized));
+ applyPrices(normalized);
+ priceConfigLoadFailed=false;
+}

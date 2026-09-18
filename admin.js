@@ -17,3 +17,34 @@ function renderAdmin(){
 }
 for(const tab of ['ingredients','guests'])adminGet('admin-'+tab).onclick=()=>{adminTab=tab;renderAdmin();};
 adminGet('admin-search').oninput=renderAdmin;adminGet('admin-stage').onchange=renderAdmin;renderAdmin();
+
+function renderPriceInputs(){
+ for(const [group,target] of [['upgrades','upgrade-prices'],['materials','material-prices']]){
+  adminGet(target).innerHTML=Object.entries(priceCatalogs[group]).map(([key,item])=>
+   '<label class="price-field" for="price-'+group+'-'+key+'"><span>'+item.name+'</span><small>'+ (group==='materials'?'每批 '+item.qty+' 份':key==='machines'?'首台增设价 · 后续每次 +80':['prepTables','packTables'].includes(key)?'首台增设价 · 后续每次 +60':'一次性升级')+'</small><input id="price-'+group+'-'+key+'" type="number" min="0" max="'+PRICE_MAX+'" step="1" required value="'+item.cost+'"></label>'
+  ).join('');
+ }
+}
+renderPriceInputs();
+if(priceConfigLoadFailed)adminGet('price-status').textContent='未能读取价格配置，当前使用默认价格。';
+adminGet('price-form').oninput=()=>{adminGet('price-status').textContent='有未保存的价格修改。';};
+adminGet('price-form').onsubmit=event=>{
+ event.preventDefault();
+ const prices={};
+ for(const [group,items] of Object.entries(priceCatalogs)){
+  prices[group]={};
+  for(const [key,item] of Object.entries(items)){
+   const input=adminGet('price-'+group+'-'+key),value=Number(input.value);
+   if(!input.value.trim()||!validBasePrice(value)){
+    adminGet('price-status').textContent=item.name+'：请输入 0–1,000,000 的整数。';input.focus();return;
+   }
+   prices[group][key]=value;
+  }
+ }
+ try{savePrices(prices);renderAdmin();adminGet('price-status').textContent='价格配置已保存，刷新游戏页面后生效。';}
+ catch{adminGet('price-status').textContent='保存失败，请允许浏览器本地存储后重试。输入内容已保留。';}
+};
+adminGet('reset-prices').onclick=()=>{
+ for(const [group,items] of Object.entries(defaultPrices))for(const [key,value] of Object.entries(items))adminGet('price-'+group+'-'+key).value=String(value);
+ adminGet('price-status').textContent='已填入默认价格，点击“保存价格配置”后生效。';
+};

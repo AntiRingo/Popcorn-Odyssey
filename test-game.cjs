@@ -14,7 +14,7 @@ function boot(storage={}) {
 const game=boot(),{run,element,buttons,advance,storage}=game;
 run('startDay()');
 for(let i=0;i<3;i++)element('shell').onclick();
-assert.equal(run('state.stock.corn'),7);
+assert.equal(run('state.stock.corn'),7);run('prepTables[0].loose.slice().forEach(id=>collectGrain(0,id))');
 element('load').onclick();element('butter').onclick();element('cook').onclick();advance(6);
 assert.equal(run('machines[0].ready'),true);
 element('pack').onclick();buttons[0].onclick();run('serve(customers[0].id)');
@@ -22,10 +22,10 @@ assert.equal(run('state.money'),78);assert.equal(run('served'),1);
 run("boxes[selectedBox]='cheese';customers=[{id:99,flavor:'chili',left:30,max:40,look:0,mutation:0}];serve(99)");
 assert.equal(run('state.money'),91);assert.equal(run('revenue'),31);assert.equal(run('discounted'),1);assert.equal(run('customers.length'),0);assert.equal(run('boxes[selectedBox]'),null);
 run('serve(99)');assert.equal(run('state.money'),91);
-run("buy('corn')");advance(4);assert.equal(run('state.stock.corn'),12);
+run("buy('corn')");advance(4);assert.equal(run('state.stock.corn'),7);run("unpackDelivery('corn');for(let i=0;i<5;i++)unpackDelivery('corn',i)");assert.equal(run('state.stock.corn'),12);
 run('pauseGame()');const remaining=run('time');advance(5);assert.equal(run('time'),remaining);
 run("paused=false;buy('butter');endDay();openShopForTest()");
-assert.equal(run('state.phase'),'shop');assert.equal(run('state.lastRevenue'),31);assert.equal(run('state.stock.butter'),12);
+assert.equal(run('state.phase'),'shop');assert.equal(run('state.lastRevenue'),31);assert.equal(run('state.stock.butter'),7);assert.equal(run('state.pendingCrates[0].key'),'butter');
 run("purchaseUpgrade('shell')");assert.equal(run('state.upgrades.shell'),true);assert.equal(run('state.money'),4);
 run("purchaseUpgrade('shell');purchaseUpgrade('feed')");assert.equal(run('state.money'),4);assert.equal(run('state.upgrades.feed'),false);
 const loaded=boot(storage);loaded.element('start').onclick();
@@ -51,8 +51,8 @@ automatic.run("purchaseUpgrade('shell')");assert.equal(automatic.run('state.mone
 
 for(const key of ['feed','cook']){
  const partial=boot();partial.run(`state.upgrades.${key}=true;startDay()`);
- if(key==='feed'){partial.run('shellCorn();shellCorn();shellCorn()');partial.advance(.5);assert.equal(partial.run('machines[0].buttered'),true);assert.equal(partial.run('machines[0].cooking'),0);}
- else{partial.run('shellCorn();shellCorn();shellCorn();loadMachine(machines[0]);addButter(machines[0])');partial.advance(.5);assert.equal(partial.run('machines[0].cooking'),6);}
+ if(key==='feed'){partial.run('shellCorn();shellCorn();shellCorn();prepTables[0].loose.slice().forEach(id=>collectGrain(0,id))');partial.advance(.5);assert.equal(partial.run('machines[0].buttered'),true);assert.equal(partial.run('machines[0].cooking'),0);}
+ else{partial.run('shellCorn();shellCorn();shellCorn();prepTables[0].loose.slice().forEach(id=>collectGrain(0,id));loadMachine(machines[0]);addButter(machines[0])');partial.advance(.5);assert.equal(partial.run('machines[0].cooking'),6);}
 }
 for(const [amount,capacity] of [[0,3],[80,3],[180,4],[350,4],[600,6]]){
  assert.equal(run('demand('+amount+').capacity'),capacity);
@@ -72,7 +72,7 @@ book.run('openCodex()');const bookTime=book.run('time');book.advance(5);assert.e
 book.run("drawCodex('guests')");assert.match(book.element('codex-overlay').innerHTML,/未记录的来客/);assert.match(book.element('codex-overlay').innerHTML,/初见于第 1 天/);
 book.run('closeCodex()');assert.equal(book.run('paused'),false);
 book.run('pauseGame();openCodex();closeCodex()');assert.equal(book.run('paused'),true);
-book.run('paused=false;shellCorn();shellCorn();shellCorn();loadMachine(machines[0]);addButter(machines[0])');
+book.run('paused=false;shellCorn();shellCorn();shellCorn();prepTables[0].loose.slice().forEach(id=>collectGrain(0,id));loadMachine(machines[0]);addButter(machines[0])');
 assert.equal(book.run('state.collection.ingredients.corn'),1);assert.equal(book.run('state.collection.ingredients.butter'),1);
 book.run('endDay();openShopForTest()');const archiveReload=boot(book.storage);archiveReload.element('start').onclick();
 assert.equal(archiveReload.run('Object.keys(state.collection.guests).length'),1);assert.equal(archiveReload.run('state.collection.ingredients.corn'),1);
@@ -86,7 +86,7 @@ assert.equal(purchase.run('state.money'),640);assert.equal(purchase.run('state.u
 const upgradesReload=boot(purchase.storage);upgradesReload.element('start').onclick();assert.equal(upgradesReload.run('prepTables.length'),2);assert.equal(upgradesReload.run('boxes.length'),2);
 purchase.run('startDay();state.stock.corn=0;state.stock.butter=0;autoProcure()');assert.equal(purchase.run('deliveries.length'),2);assert.equal(purchase.run('state.money'),618);
 purchase.run('autoProcure();autoProcure()');assert.equal(purchase.run('deliveries.length'),2);assert.equal(purchase.run('state.money'),618);
-purchase.advance(4);assert.equal(purchase.run('state.stock.corn'),5);assert.equal(purchase.run('state.stock.butter'),5);
+purchase.advance(4);purchase.run("for(const key of ['corn','butter']){unpackDelivery(key);for(let i=0;i<5;i++)unpackDelivery(key,i)}");assert.equal(purchase.run('state.stock.corn'),5);assert.equal(purchase.run('state.stock.butter'),5);
 purchase.run('state.money=0;state.stock.corn=0;autoProcure()');assert.equal(purchase.run('state.money'),0);assert.equal(purchase.run('deliveries.length'),0);
 purchase.run('state.money=50;state.stock.corn=0;pauseGame();autoProcure()');assert.equal(purchase.run('deliveries.length'),0);
 const parallel=boot();parallel.run('state.upgrades.prepTables=4;state.upgrades.packTables=4;state.upgrades.shell=true;state.upgrades.machines=4;state.upgrades.feed=true;state.upgrades.cook=true;state.upgrades.autoPack=true;startDay()');
@@ -147,7 +147,7 @@ console.log('PASS: cumulative mutation thresholds and mixed encounter chances; m
 const freefire=boot();freefire.run('startDay();render()');assert.equal(freefire.element('shotgun').disabled,false);
 freefire.element('shotgun').onclick();assert.equal(freefire.run('armed'),true);freefire.element('shotgun').onclick();assert.equal(freefire.run('armed'),false);
 freefire.element('shotgun').onclick();freefire.run('customerAction(customers[0].id)');assert.equal(freefire.run('customers.length'),0);assert.equal(freefire.run('state.money'),30);assert.equal(freefire.run('fines'),30);assert.equal(freefire.run('state.totalRevenue'),0);assert.equal(freefire.run('served'),0);
-freefire.advance(1.5);freefire.element('shotgun').onclick();freefire.element('fire-shotgun').onclick();assert.equal(freefire.run('state.money'),30);assert.equal(freefire.run('reload'),1.2);
+freefire.advance(1.5);freefire.element('shotgun').onclick();freefire.run('shoot()');assert.equal(freefire.run('state.money'),30);assert.equal(freefire.run('reload'),1.2);
 freefire.advance(1.5);freefire.run('state.money=7;customers=[{id:900,mutation:0,look:0,flavor:"original",left:60,max:60}];takeShotgun();shoot(900)');assert.equal(freefire.run('state.money'),0);assert.equal(freefire.run('fines'),37);
 freefire.advance(1.5);freefire.run('customers=[{id:901,mutation:2,look:0,flavor:"original",left:60,max:60}];takeShotgun();shoot(901)');assert.equal(freefire.run('customers.length'),0);assert.equal(freefire.run('fines'),37);
 freefire.advance(1.5);freefire.run('takeShotgun();customers=[{id:902,mutation:2,look:4,flavor:"original",left:60,max:60}];beginAttack(customers[0])');assert.equal(freefire.run('armed'),true);
@@ -178,3 +178,19 @@ pointer.run('suppressShotClick(ground)');assert.equal(pointer.run('prevented'),2
 pointer.advance(1.5);pointer.run('takeShotgun();const person={...ground,target:{closest:()=>({dataset:{customer:customers[0].id}})}};gunPointerDown(person)');assert.equal(pointer.run('state.money'),30);assert.equal(pointer.run('customers.length'),0);
 pointer.advance(1.5);pointer.run('takeShotgun();holsterGun(ground)');assert.equal(pointer.run('armed'),false);assert.equal(pointer.element('gun-pointer').hidden,true);
 console.log('PASS: pointer-following gun, pause/holster visibility, background shots, target shots and prevention of duplicate clicks or workstation actions.');
+
+const configured=boot({'popcorn-odyssey-prices-v1':JSON.stringify({upgrades:{shell:7,machines:30,prepTables:20,packTables:10},materials:{corn:20,butter:0}})});
+configured.run("state.phase='shop';state.money=1000;purchaseUpgrade('shell');purchaseUpgrade('machines');purchaseUpgrade('machines');purchaseUpgrade('prepTables');purchaseUpgrade('packTables')");
+assert.equal(configured.run('state.money'),823);
+assert.equal(configured.run("upgradeCost('machines')"),190);
+assert.equal(configured.run("upgradeCost('prepTables')"),80);
+assert.equal(configured.run("upgradeCost('packTables')"),70);
+configured.run("startDay();state.market={priceKey:'corn',pricePct:25};buy('corn')");
+assert.equal(configured.run('state.money'),798);
+assert.equal(configured.run('expense'),25);
+configured.run("buy('butter')");
+assert.equal(configured.run('state.money'),798);
+assert.equal(configured.run("deliveries.some(d=>d.key==='butter')"),true);
+configured.run("deliveries=[];state.stock.corn=0;state.upgrades.procure=true;autoProcure()");
+assert.equal(configured.run('state.money'),773);
+console.log('PASS: configured upgrade deductions and incremental costs, material market multiplier, zero-cost purchases and automatic procurement.');

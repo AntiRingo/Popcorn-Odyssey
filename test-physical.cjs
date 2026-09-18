@@ -2,7 +2,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const elements=new Map(),handlers={};
 function element(id){if(!elements.has(id))elements.set(id,{textContent:'',innerHTML:'',style:{},dataset:{},classList:{add(){},remove(){},toggle(){}}});return elements.get(id);}
 const context=vm.createContext({document:{getElementById:element,querySelectorAll:()=>[],addEventListener:(name,fn)=>{(handlers[name]??=[]).push(fn);},elementFromPoint:()=>null},window:{addEventListener(){}},localStorage:{getItem:()=>null,setItem(){}},performance:{now:()=>0},requestAnimationFrame(){},setTimeout(){},clearTimeout(){},console,Math,syncMarkup:(el,html)=>{el.innerHTML=html;}});
-for(const file of ['catalog-data.js','characters.js','interface.js','night-events.js','gun-pointer.js','physical.js','game.js'])vm.runInContext(fs.readFileSync(file,'utf8'),context);
+for(const file of ['catalog-data.js','characters.js','interface.js','night-events.js','gun-pointer.js','food-art.js','food-physics.js','food-scenes.js','physical.js','game.js'])vm.runInContext(fs.readFileSync(file,'utf8'),context);
 const run=code=>vm.runInContext(code,context);
 run('sound=false;startDay();installPhysicalControls()');
 function pointer(name,x){for(const handler of handlers[name]||[])handler({button:0,pointerId:1,clientX:x,clientY:100,preventDefault(){},target:{closest:()=>({dataset:{object:'cob',index:'0'},innerHTML:'玉米'})}});}
@@ -12,7 +12,11 @@ pointer('pointerdown',100);pointer('pointermove',135);assert.equal(run('prepTabl
 for(const x of [100,135,100,135,100])pointer('pointermove',x);
 assert.equal(run('prepTables[0].progress'),3);assert.equal(run('state.stock.corn'),7);assert.equal(run('gesture'),null);
 assert.equal(run("physicalDrop('grain','0','machine',0)"),false);assert.equal(run('prepTables[0].progress'),3);
-run('machines[0].door=true');assert.equal(run("physicalDrop('grain','0','machine',0)"),true);
+run('machines[0].door=true');assert.equal(run("physicalDrop('grain','0','machine',0)"),false);
+assert.equal(run('prepTables[0].loose.length'),6);
+run('collectGrain(0,0)');assert.equal(run('collectGrain(0,0)'),false);
+run('prepTables[0].loose.slice().forEach(id=>collectGrain(0,id))');
+assert.equal(run("physicalDrop('grain','0','machine',0)"),true);
 assert.equal(run("physicalDrop('grain','0','machine',0)"),false);
 assert.equal(run("physicalDrop('jar','butter','machine',0)"),true);assert.equal(run('state.stock.butter'),7);
 assert.equal(run("physicalDrop('jar','butter','machine',0)"),false);assert.equal(run('state.stock.butter'),7);
@@ -21,7 +25,7 @@ assert.equal(run("physicalDrop('scoop','0','machine',0)"),false);
 run('machines[0].door=true');assert.equal(run("physicalDrop('scoop','0','machine',0)"),true);
 run('state.upgrades.autoPack=true;advanceProduction(.2)');assert.equal(run('boxes[0]'),null);assert.equal(run('heldScoop===machines[0]'),true);
 assert.equal(run("physicalDrop('scoop','0','trash',0)"),false);assert.equal(run('heldScoop!==null'),true);
-assert.equal(run("physicalDrop('scoop','0','box',0)"),true);assert.equal(run('heldScoop'),null);assert.equal(run('boxes[0]'),'plain');
+assert.equal(run("physicalDrop('scoop','0','box',0)"),true);assert.equal(run('heldScoop'),null);assert.equal(run('boxes[0]'),'plain');assert.equal(run('machines[0].door'),true);
 run('customerAction(customers[0].id)');assert.equal(run('served'),0);
 assert.equal(run("physicalDrop('box','0','customer',999)"),false);assert.equal(run('boxes[0]'),'plain');
 assert.equal(run("physicalDrop('box','0','customer',customers[0].id)"),true);assert.equal(run('served'),1);assert.equal(run('boxes[0]'),null);
@@ -55,3 +59,63 @@ scoopClickTarget('tool');for(const handler of handlers.contextmenu)handler({prev
 scoopClickTarget('tool');run('paused=true;render()');assert.equal(run('scoopEquipped'),false);assert.equal(element('scoop-pointer').hidden,true);
 run('paused=false;render()');scoopClickTarget('tool');run('armed=true;render()');assert.equal(run('scoopEquipped'),false);
 console.log('PASS: click pickup, cursor tracking without holding a button, click machine without closing door, occupied-box rejection, repeat scooping, rack/right-click holster, pause and gun exclusivity.');
+
+run("state=freshState();startDay();buy('corn');advanceDeliveries(4)");
+assert.equal(run('state.stock.corn'),8);
+assert.equal(run("unpackDelivery('corn',0)"),false);
+assert.equal(run("unpackDelivery('corn')"),true);
+assert.equal(run("unpackDelivery('corn',0)"),true);
+assert.equal(run("unpackDelivery('corn',0)"),false);
+assert.equal(run('state.stock.corn'),9);
+run('endDay()');assert.equal(run('state.stock.corn'),9);
+assert.equal(run('state.pendingCrates[0].collected'),1);
+run('state=readSave({...state,version:5});startDay()');
+assert.equal(run('deliveries[0].opened'),true);
+run("for(let i=1;i<5;i++)unpackDelivery('corn',i)");
+assert.equal(run('state.stock.corn'),13);assert.equal(run('deliveries.length'),0);
+run('machines[0].door=true;machines[0].loaded=true;machines[0].buttered=true');
+assert.equal(run('startMachine(machines[0])'),false);assert.equal(run('machines[0].door'),true);
+console.log('PASS: manual grain collection, duplicate rejection, unpack before stock credit, partial crates survive day/save, door remains open after packing and blocks ignition.');
+
+run('state=freshState();startDay()');
+assert.equal(run('toggleMachineDoor(machines[0])'),true);
+assert.equal(run('machines[0].door'),true);assert.equal(run('machines[0].doorMove'),.5);
+assert.equal(run('toggleMachineDoor(machines[0])'),false);
+run('advanceProduction(.25);render()');assert.match(element('machine-fleet').innerHTML,/door-opening/);
+assert.equal(run('toggleMachineDoor(machines[0])'),false);
+run('advanceProduction(.25)');assert.equal(run('toggleMachineDoor(machines[0])'),true);
+run('machines[0].loaded=true;machines[0].buttered=true;render()');
+assert.match(element('machine-fleet').innerHTML,/door-closing/);
+assert.equal(run('startMachine(machines[0])'),false);
+run('advanceProduction(.5)');assert.equal(run('startMachine(machines[0])'),true);
+assert.equal(run('toggleMachineDoor(machines[0])'),false);
+run('advanceProduction(6);toggleMachineDoor(machines[0])');
+assert.equal(run("physicalDrop('scoop','0','machine',0)"),false);
+run('advanceProduction(.5)');assert.equal(run("physicalDrop('scoop','0','machine',0)"),true);
+assert.equal(run("physicalDrop('scoop','0','box',0)"),true);assert.equal(run('machines[0].door'),true);
+console.log('PASS: fixed door animation lock, rapid-click rejection, ignition and loading interlocks, stable open state after packing.');
+
+run('state=freshState();startDay()');pointer('pointerdown',100);run('render()');
+assert.equal(element('object-ghost').hidden,false);
+assert.match(element('prep-tables').innerHTML,/physical-object cob held-source/);
+assert.match(element('prep-tables').innerHTML,/aria-hidden="true"/);
+pointer('pointermove',135);pointer('pointermove',100);run('render()');
+assert.equal(run('prepTables[0].progress'),1);
+assert.match(element('prep-tables').innerHTML,/physical-object cob held-source/);
+pointer('pointerup',100);run('render()');
+assert.equal(element('object-ghost').hidden,true);
+assert.doesNotMatch(element('prep-tables').innerHTML,/held-source/);
+assert.equal(run('prepTables[0].progress'),1);
+pointer('pointerdown',100);run('paused=true;render()');
+assert.equal(run('gesture'),null);assert.equal(element('object-ghost').hidden,true);
+run('render()');assert.doesNotMatch(element('prep-tables').innerHTML,/held-source/);
+console.log('PASS: held corn hides its parked image across shelling/rerenders; release and pause restore it without losing progress.');
+
+const parkedCobs=[0,1].map(index=>({dataset:{index:String(index)},hiddenForDrag:false,attributes:{},classList:{toggle(name,value){parkedCobs[index].hiddenForDrag=value;}},setAttribute(name,value){this.attributes[name]=value;},removeAttribute(name){delete this.attributes[name];}}));
+context.document.querySelectorAll=selector=>selector==='[data-object="cob"]'?parkedCobs:[];
+run('state=freshState();startDay()');pointer('pointerdown',100);
+assert.equal(parkedCobs[0].hiddenForDrag,true);assert.equal(parkedCobs[0].attributes['aria-hidden'],'true');
+assert.equal(parkedCobs[1].hiddenForDrag,false);
+pointer('pointerup',100);assert.equal(parkedCobs[0].hiddenForDrag,false);assert.equal(parkedCobs[0].attributes['aria-hidden'],undefined);
+pointer('pointerdown',100);run('cancelPhysicalGesture()');assert.equal(parkedCobs[0].hiddenForDrag,false);
+console.log('PASS: pickup/release/cancel immediately update only the held corn, without waiting for the next render.');

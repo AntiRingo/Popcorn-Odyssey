@@ -15,7 +15,8 @@ function syncMarkup(container,html){
    else if(current.nodeType===1){
     for(const attr of Array.from(current.attributes))if(!target.hasAttribute(attr.name))current.removeAttribute(attr.name);
     for(const attr of Array.from(target.attributes))if(current.getAttribute(attr.name)!==attr.value)current.setAttribute(attr.name,attr.value);
-    patch(current,target);
+    // Physics owns these children and updates their positions each animation frame.
+    if(!target.hasAttribute('data-live'))patch(current,target);
    }
    index++;
   }

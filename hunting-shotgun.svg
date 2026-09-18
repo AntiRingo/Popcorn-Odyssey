@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 230" fill="none">
+  <defs>
+    <linearGradient id="wood" x1="0" y1="45" x2="30" y2="220" gradientUnits="userSpaceOnUse"><stop stop-color="#93634a"/><stop offset=".22" stop-color="#55382e"/><stop offset=".55" stop-color="#704732"/><stop offset="1" stop-color="#30241f"/></linearGradient>
+    <linearGradient id="steel" x2="0" y2="1"><stop stop-color="#9da5a7"/><stop offset=".18" stop-color="#5e6668"/><stop offset=".4" stop-color="#30383b"/><stop offset=".78" stop-color="#444c4e"/><stop offset="1" stop-color="#202629"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2=".3" y2="1"><stop stop-color="#fff0be"/><stop offset=".3" stop-color="#d7ba7c"/><stop offset=".65" stop-color="#9d7843"/><stop offset="1" stop-color="#e9cf94"/></linearGradient>
+    <pattern id="grain" width="210" height="48" patternUnits="userSpaceOnUse" patternTransform="rotate(-6)"><path d="M-30 8Q30-4 100 13T230 9M-25 20Q35 6 109 26T230 19M-20 35Q50 21 120 38T240 31M10 45Q65 34 110 45" stroke="#241c18" stroke-opacity=".36" stroke-width="2"/><path d="M0 15Q40 2 99 18T210 13M0 39Q70 28 145 43" stroke="#b4855a" stroke-opacity=".26" stroke-width="1.5"/></pattern>
+    <pattern id="checkering" width="6" height="6" patternUnits="userSpaceOnUse"><path d="M0 0L6 6M6 0L0 6" stroke="#bb9157" stroke-opacity=".5" stroke-width=".8"/></pattern>
+    <path id="stock" d="M25 66L223 44Q239 43 250 60L268 78Q291 91 319 73L362 50L380 114L347 128L323 171Q318 180 302 177L242 160L54 216Q38 220 30 207Z"/>
+    <path id="fore" d="M522 99L746 112L752 146Q750 154 739 155L546 151L519 134Z"/>
+  </defs>
+  <!-- Walnut stock and fore-end, with fine grain and brass inlay. -->
+  <use href="#stock" fill="url(#wood)" stroke="#29241f" stroke-width="4"/>
+  <use href="#stock" fill="url(#grain)"/>
+  <path d="M35 68L222 49Q233 46 247 65L266 84Q289 97 317 79L350 58" stroke="#d4bba1" stroke-opacity=".7" stroke-width="5"/>
+  <path d="M40 206Q44 216 60 210L226 160" stroke="url(#gold)" stroke-width="3"/>
+  <path d="M25 64L34 55L39 58L33 72L43 213Q43 220 34 219L26 216L17 78Z" fill="url(#gold)"/>
+  <path d="M254 150L319 94L340 85L307 167Z" fill="#332a23" stroke="#bd995f" stroke-width="2"/>
+  <path d="M254 150L319 94L340 85L307 167Z" fill="url(#checkering)"/>
+  <use href="#fore" fill="url(#wood)" stroke="#302825" stroke-width="3"/>
+  <use href="#fore" fill="url(#grain)"/>
+  <path d="M541 116L718 124L702 135L720 145L540 140L557 130Z" fill="#332921" stroke="#b79459" stroke-width="1.6"/>
+  <path d="M541 116L718 124L702 135L720 145L540 140L557 130Z" fill="url(#checkering)"/>
+  <!-- Long octagonal blued barrel and raised sights. -->
+  <path d="M494 51L1009 88L1014 103L1009 127L503 92Z" fill="url(#steel)" stroke="#262c2c" stroke-width="3"/>
+  <path d="M512 54L1007 89L1002 99L516 66Z" fill="#a3aaac"/>
+  <path d="M518 69L1003 103L1006 121L513 87Z" fill="#4b5355"/>
+  <path d="M549 55L551 44L600 47L602 59" fill="#42494a" stroke="#72797a" stroke-width="2"/>
+  <path d="M573 45V33H582V46" fill="url(#gold)"/>
+  <path d="M967 87L969 77L995 79L997 90Z" fill="url(#gold)"/>
+  <path d="M979 78L981 62L988 63L990 79" fill="#353d3f"/>
+  <path d="M1002 88L1020 90L1025 102L1020 133L1001 130Z" fill="url(#gold)" stroke="#b19666" stroke-width="2"/>
+  <ellipse cx="1020" cy="112" rx="4" ry="12" fill="#302e28"/>
+  <path d="M1007 100L1006 121M1012 101L1011 124" stroke="#f6dfad" stroke-width="2"/>
+  <path d="M735 109L748 110L750 151L737 152Z" fill="url(#gold)"/>
+  <path d="M741 115L745 119L740 124L745 130L741 136L746 142" stroke="#8b6b41" stroke-width="1.5"/>
+  <!-- Trigger guard behind the receiver and curved brass lever. -->
+  <path d="M379 126C368 188 452 189 471 139L458 130C449 168 393 176 391 136Z" fill="url(#gold)" stroke="#645640" stroke-width="3"/>
+  <path d="M411 127Q429 143 410 154" stroke="#d6b779" stroke-width="5" stroke-linecap="round"/>
+  <path d="M362 54Q339 58 339 92Q337 120 363 131" stroke="#7c613b" stroke-width="10"/>
+  <path d="M362 54Q339 58 339 92Q337 120 363 131" stroke="url(#gold)" stroke-width="5"/>
+  <path d="M365 48L489 53L525 77L523 129L493 144L372 131L356 119L355 66Z" fill="url(#steel)" stroke="#24292a" stroke-width="4"/>
+  <path d="M379 62L482 66L505 81L505 126L485 137L376 123L365 114V76Z" fill="#272e2e" stroke="url(#gold)" stroke-width="2.5"/>
+  <path d="M371 45L383 31L496 41L492 53Z" fill="#626b6d" stroke="#333b3e" stroke-width="3"/>
+  <path d="M385 33L492 43" stroke="#a3aaab" stroke-width="2"/>
+  <g fill="#626867" stroke="#1b2020" stroke-width="2"><circle cx="385" cy="102" r="5"/><circle cx="479" cy="91" r="5"/><circle cx="470" cy="126" r="4"/></g>
+  <g stroke="#d2b478" stroke-width="2" stroke-linecap="round"><path d="M379 73q-14 2-9 10t9-1q2-4-5-8M393 115q17 12 35 8t33 7M402 117l-2-6m10 11 4-7m29 10-1-7m10 10 6-5M511 81q12 5 0 11t0 11t0 11t0 12"/></g>
+  <circle cx="453" cy="88" r="10" fill="url(#gold)" stroke="#f1dbae" stroke-width="2"/>
+  <path d="M453 90C434 105 435 139 414 151L397 166" stroke="#755d39" stroke-width="14" stroke-linecap="round"/>
+  <path d="M453 90C434 105 435 139 414 151L397 166" stroke="url(#gold)" stroke-width="10" stroke-linecap="round"/>
+  <path d="M450 92C434 111 434 140 411 154" stroke="#f3dfad" stroke-width="3" stroke-linecap="round"/>
+  <ellipse cx="397" cy="166" rx="10" ry="8" fill="#525959" stroke="#b89e68" stroke-width="3"/>
+  <!-- Stag crest on the stock. -->
+  <g stroke="url(#gold)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M89 126L78 111L64 96L60 80M78 111L78 93L73 85M67 99L68 86M81 115L91 101L92 90M94 126L106 109L118 95L120 80M106 109L106 90M114 100L126 92L129 82"/>
+    <path d="M85 129Q73 117 77 132L86 139M100 127Q112 115 108 130L99 139" fill="#b79459"/>
+    <path d="M85 125Q93 121 101 125L99 143L93 151L87 144Z" fill="url(#gold)"/>
+  </g>
+  <path d="M86 135L89 137M97 134L95 137" stroke="#3d3021" stroke-width="2"/>
+  <ellipse cx="93" cy="145" rx="2.5" ry="2" fill="#4a3723"/>
+</svg>

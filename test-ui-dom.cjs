@@ -38,3 +38,12 @@ sync(fleet,unit(0,6,true)+unit(1,6,false));const select=fleet.childNodes[1].chil
 for(let i=5;i>=0;i--)sync(fleet,unit(0,i,false)+unit(1,i,true));
 assert.equal(fleet.childNodes[1].childNodes[0],select);assert.equal(fleet.childNodes[1].childNodes[1],pack);assert.equal(pack.hasAttribute('disabled'),false);
 console.log('PASS: timer refresh preserves buttons, text nodes and handlers; keyed customer removal preserves other targets; machine selection and completion preserve controls.');
+
+const fieldRoot=new Node('DIV');sync(fieldRoot,'<div data-live="particles"></div>');
+const field=fieldRoot.childNodes[0],grain=new Node('BUTTON');field.insertBefore(grain,null);
+for(let i=0;i<20;i++)sync(fieldRoot,'<div data-live="particles"></div>');
+assert.equal(fieldRoot.childNodes[0],field);assert.equal(field.childNodes[0],grain);
+const doorRoot=new Node('DIV'),doorMarkup=n=>`<article class="door-closing"><span>${n}</span><button data-key="door"><span class="door-leaf" style="--door-angle:0deg"></span></button></article>`;
+sync(doorRoot,doorMarkup(6));const doorLeaf=doorRoot.childNodes[0].childNodes[1].childNodes[0];
+for(let i=0;i<20;i++){sync(doorRoot,doorMarkup(i));assert.equal(doorRoot.childNodes[0].childNodes[1].childNodes[0],doorLeaf);}
+console.log('PASS: timer reconciliation preserves physics-owned bodies and the animating door leaf.');

@@ -29,7 +29,7 @@ function advanceCombat(dt){
  if(c){c.attackLeft=Math.max(0,c.attackLeft-dt);if(c.attackLeft===0){c.attack='spent';customers=customers.filter(x=>x.id!==c.id);stun=4;armed=false;attackCooldown=8;toast('反击失败！受到惊吓，4 秒内无法手动操作');beep(100);}}
  else if(!wasStunned&&stun===0&&attackCooldown===0){for(const guest of customers){if(guest.hostile&&guest.attack!=='spent'){guest.attackIn-=dt;if(guest.attackIn<=0){beginAttack(guest);break;}}}}
 }
-function takeShotgun(){if(!shiftRunning()||stun>0||reload>0)return;armed=!armed;render();}
+function takeShotgun(){if(typeof tutorialActive==='function'&&tutorialActive())return;if(!shiftRunning()||stun>0||reload>0)return;armed=!armed;render();}
 function shoot(id){
  if(!shiftRunning()||stun>0||!armed||reload>0)return;
  const c=customers.find(x=>x.id===id);armed=false;reload=1.2;shotFlash=.25;
@@ -44,10 +44,7 @@ function shoot(id){
 }
 function customerAction(id){if(armed)shoot(id);else{const c=customers.find(x=>x.id===id);if(c?.attack==='windup'){toast('对方正在攻击！先拿起操作台上方的猎枪');return;}toast('将装好的纸盒拖给这位客人');}}
 function renderCombat(){
- const c=threat();$('customers').classList.toggle('combat-paused',paused);$('shotgun').disabled=!shiftRunning()||stun>0||reload>0;$('shotgun').classList.toggle('armed',armed);
- $('fire-shotgun').disabled=!shiftRunning()||stun>0||reload>0||!armed;
- $('gun-label').textContent=armed?'已持枪 · 右键放下':reload>0?'装填中 '+reload.toFixed(1)+'s':'拿起猎枪';
- $('security-status').textContent=stun>0?'受到惊吓 · '+stun.toFixed(1)+' 秒后恢复操作':c?'袭击预警 · '+c.attackLeft.toFixed(1)+' 秒 · 点击目标反击':armed?'左键任意位置射击，右键放下 · 射击未攻击顾客赔偿 30 ◈':'猎枪随时可用 · 射击未攻击顾客赔偿 30 ◈';
+ const c=threat();$('customers').classList.toggle('combat-paused',paused);$('shotgun').disabled=!shiftRunning()||stun>0||reload>0;$('shotgun').classList.toggle('armed',armed);$('shotgun').classList.toggle('reloading',reload>0);$('shotgun').setAttribute?.('aria-pressed',String(armed));
  $('combat-alert').className='combat-alert '+(stun>0?'stunned':shotFlash>0?'shot':'');
  $('combat-alert').textContent=stun>0?'暂时无法操作 · '+Math.ceil(stun)+'s':'';
  $('security-rack').classList.toggle('danger',!!c);updateGunPointer();

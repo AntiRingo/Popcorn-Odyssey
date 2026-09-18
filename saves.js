@@ -27,10 +27,11 @@ function initializeSaveLibrary(){
 }
 function shiftSnapshot(){
  if(!run)return null;
- return cloneSave({time,customers,deliveries,prepTables,boxes,machines:machines.map(m=>({...m,scooped:false})),selectedPrep,selectedBox,selectedMachine,served,revenue,expense,fines,lost,discounted,nextCustomer,seq,stun,reload,attackCooldown});
+ return cloneSave({time,customers,deliveries,prepTables,boxes,machines:machines.map(m=>({...m,scooped:false,doorMove:0})),selectedPrep,selectedBox,selectedMachine,served,revenue,expense,fines,lost,discounted,nextCustomer,seq,stun,reload,attackCooldown});
 }
 function newSaveId(){return 'slot-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10);}
 function storeCurrentSave(){
+ if(typeof tutorialActive==='function'&&tutorialActive())return false;
  const next=cloneSave(saveLibrary);let slot=next.slots.find(s=>s.id===next.activeId);
  if(!slot){slot={id:newSaveId(),name:'营业所 '+(next.slots.length+1)};next.slots.push(slot);next.activeId=slot.id;}
  slot.data={...cloneSave(state),version:5};slot.runtime=run?shiftSnapshot():(state.phase==='ready'?slot.runtime??null:null);slot.updatedAt=Date.now();
@@ -41,9 +42,9 @@ function validShiftSnapshot(s){
  const nonnegative=n=>Number.isFinite(n)&&n>=0;
  if(!s||!['time','served','revenue','expense','fines','lost','discounted','nextCustomer','seq','stun','reload','attackCooldown'].every(k=>nonnegative(s[k]))||s.time>150)return false;
  if(!Array.isArray(s.machines)||s.machines.length!==state.upgrades.machines||!s.machines.every(m=>m&&typeof m.loaded==='boolean'&&typeof m.buttered==='boolean'&&typeof m.ready==='boolean'&&nonnegative(m.cooking)&&m.cooking<=6))return false;
- if(!Array.isArray(s.prepTables)||s.prepTables.length!==state.upgrades.prepTables||!s.prepTables.every(t=>t&&Number.isInteger(t.progress)&&t.progress>=0&&t.progress<=3&&nonnegative(t.clock)))return false;
+ if(!Array.isArray(s.prepTables)||s.prepTables.length!==state.upgrades.prepTables||!s.prepTables.every(t=>t&&Number.isInteger(t.progress)&&t.progress>=0&&t.progress<=3&&nonnegative(t.clock)&&(t.loose===undefined||(Array.isArray(t.loose)&&new Set(t.loose).size===t.loose.length&&t.loose.every(n=>Number.isInteger(n)&&n>=0&&n<t.progress*2)&&Number.isInteger(t.collected)&&t.collected>=0&&t.collected+t.loose.length===t.progress*2))))return false;
  if(!Array.isArray(s.boxes)||s.boxes.length!==state.upgrades.packTables||!s.boxes.every(b=>b===null||b==='plain'||Object.hasOwn(flavors,b)))return false;
- if(!Array.isArray(s.deliveries)||!s.deliveries.every(d=>d&&Object.hasOwn(goods,d.key)&&nonnegative(d.left)))return false;
+ if(!Array.isArray(s.deliveries)||!s.deliveries.every(validDelivery))return false;
  if(!Array.isArray(s.customers)||!s.customers.every(c=>c&&Number.isInteger(c.id)&&c.id>0&&Object.hasOwn(flavors,c.flavor)&&nonnegative(c.left)&&nonnegative(c.max)&&c.max>0&&Number.isInteger(c.look)&&c.look>=0&&Number.isInteger(c.mutation)&&c.mutation>=0&&c.mutation<=4&&['waiting','windup','spent'].includes(c.attack)&&Number.isFinite(c.attackIn)&&(c.attack!=='windup'||nonnegative(c.attackLeft))))return false;
  return [['selectedPrep',s.prepTables],['selectedBox',s.boxes],['selectedMachine',s.machines]].every(([key,items])=>Number.isInteger(s[key])&&s[key]>=0&&s[key]<items.length);
 }
@@ -58,7 +59,7 @@ function resetForSave(data){
  state=readSave(data);saved=cloneSave(state);customers=[];deliveries=[];prepTables=Array.from({length:state.upgrades.prepTables},()=>({progress:0,clock:0}));boxes=Array(state.upgrades.packTables).fill(null);machines=Array.from({length:state.upgrades.machines},emptyMachine);selectedPrep=selectedBox=selectedMachine=0;render();
 }
 function openSaveManager(){
- if(saveManagerOpen||codexOpen)return;
+ if(saveManagerOpen||codexOpen||(typeof tutorialActive==='function'&&tutorialActive()))return;
  saveManagerReturn={run,paused};saveManagerOpen=true;paused=true;render();drawSaveManager();
 }
 function drawSaveManager(){

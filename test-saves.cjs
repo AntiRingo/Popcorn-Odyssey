@@ -3,7 +3,7 @@ function boot(storage={}){
  const elements=new Map(),handlers={};let failing=false;
  const element=id=>{if(!elements.has(id))elements.set(id,{innerHTML:'',textContent:'',value:'',hidden:false,style:{},dataset:{},classList:{add(){},remove(){},toggle(){}}});return elements.get(id);};
  const context=vm.createContext({document:{getElementById:element,querySelectorAll:()=>[],addEventListener:(key,fn)=>{(handlers[key]??=[]).push(fn);},elementFromPoint:()=>null},window:{addEventListener(){}},localStorage:{getItem:key=>storage[key]??null,setItem:(key,value)=>{if(failing)throw Error('quota');storage[key]=value;}},performance:{now:()=>0},requestAnimationFrame(){},setTimeout(){},clearTimeout(){},console,Math,syncMarkup:(el,html)=>el.innerHTML=html});
- for(const file of ['catalog-data.js','characters.js','interface.js','night-events.js','gun-pointer.js','physical.js','saves.js','game.js'])vm.runInContext(fs.readFileSync(file,'utf8'),context);
+ for(const file of ['catalog-data.js','characters.js','interface.js','night-events.js','gun-pointer.js','food-art.js','food-physics.js','food-scenes.js','physical.js','saves.js','game.js'])vm.runInContext(fs.readFileSync(file,'utf8'),context);
  const run=code=>vm.runInContext(code,context);run('sound=false;installPhysicalControls()');return {run,element,storage,handlers,fail:value=>failing=value};
 }
 let game=boot(),r=game.run;
@@ -26,3 +26,16 @@ const legacy=JSON.stringify({...JSON.parse(clean.run('JSON.stringify(freshState(
 assert.equal(migrated.run('saved.money'),234);assert.equal(migrated.run('saveLibrary.slots[0].name'),'原有存档');assert.equal(oldStorage['popcorn-odyssey-v1'],legacy);
 migrated.run('deleteSaveSlot(saveLibrary.activeId)');assert.equal(boot(oldStorage).run('saveLibrary.slots.length'),0);
 console.log('PASS: migration, independent named saves, mid-shift restoration including attacks and full scoop, welcome persistence, manager pause, storage failure atomicity, deletion and no legacy resurrection.');
+
+const tactile=boot();
+tactile.run("startDay();shellCorn();shellCorn();collectGrain(0,0);buy('butter');advanceDeliveries(4);unpackDelivery('butter');unpackDelivery('butter',0);storeCurrentSave()");
+const restored=boot(tactile.storage);restored.element('start').onclick();
+assert.equal(restored.run('prepTables[0].collected'),1);
+assert.equal(restored.run('prepTables[0].loose.join()'),'1,2,3');
+assert.equal(restored.run('deliveries[0].collected'),1);
+assert.equal(restored.run('deliveries[0].opened'),true);
+assert.equal(restored.run('state.stock.butter'),9);
+assert.equal(restored.run("unpackDelivery('butter',0)"),false);
+assert.equal(restored.run('collectGrain(0,0)'),false);
+assert.equal(restored.run('machines[0].door'),false);
+console.log('PASS: partially collected kernels and opened crates restore without duplicating collected stock.');
